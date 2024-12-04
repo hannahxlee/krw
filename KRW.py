@@ -26,6 +26,10 @@ def check_exchange_rate():
 
     soup = BeautifulSoup(driver.page_source, "html.parser")
     exchange_rate = soup.find_all("div", class_="YMlKec fxKbKc")
+    if not exchange_rate:
+        print("Failed to get exchange rate, trying again...")
+        return check_exchange_rate()
+
     return exchange_rate[0].text
 
 
@@ -56,9 +60,10 @@ def send_email(subject, body):
 def main():
     try:
         interval = 300  # 5 minutes
-
         while True:
             current_rate = check_exchange_rate()
+            if not current_rate:
+                break
             current_rate = current_rate.replace(",", "")
             if float(current_rate) > THRESHOLD_RATE:
                 subject = "💸 EZ MONEY 💸"
